@@ -6,6 +6,15 @@ addons:
     packages:
       - mysql-server
       - mysql-client
+env:
+  global:
+    - AWS_DEFAULT_REGION=ap-northeast-1
+    - AWS_REGION=ap-northeast-1
+  matrix:
+    - PROJECT_DIR=user COMPOSE_PROJECT_NAME=everest-user
+    - PROJECT_DIR=admin COMPOSE_PROJECT_NAME=everest-admin
+    - PROJECT_DIR=common
+
 before_install:
   - sudo mysql -e "use mysql; update user set authentication_string=PASSWORD('new_password') where User='root'; update user set plugin='mysql_native_password';FLUSH PRIVILEGES;"
   - sudo service mysql restart
