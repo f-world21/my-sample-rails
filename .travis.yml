@@ -1,14 +1,21 @@
+sudo: required
+
 language: ruby
-addons:
-  apt:
-    sources:
-      - mysql-5.7-trusty
-    packages:
-      - mysql-server
-      - mysql-client
+
+services:
+  - docker
+
 before_install:
-  - sudo mysql -e "use mysql; update user set authentication_string=PASSWORD('new_password') where User='root'; update user set plugin='mysql_native_password';FLUSH PRIVILEGES;"
-  - sudo service mysql restart
+  - echo "Testing Docker Hub credentials"
+  - docker login -u=$DOCKER_USERNAME -p=$DOCKER_PASSWORD
+  - echo "Docker Hub credentials are working"
+  - docker build -t build-developer-rails-app .
+  - docker run -it -d --publish 0.0.0.0:3000:3000 --name=build-developer-rails-app build-developer-rails-app
+  - docker ps -a
+  - docker run build-developer-rails-app /bin/sh -c "bundle exec rake"
 
 before_script:
-  - bundle exec rake db:create
+  - bundle exec rake db:setup
+
+script:
+  - bundle exec rake
